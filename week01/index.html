@@ -92,10 +92,16 @@
       text-align: left;
     }
 
-    #turnstile-widget,
-    .cf-turnstile {
-      display: inline-block;
+    .h-captcha {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      row-gap: 8px;
       margin: 0;
+    }
+
+    .h-captcha iframe {
+      display: block;
     }
 
     .captcha-error {
@@ -160,15 +166,15 @@
       </div>
 
       <div class="field captcha-field">
-        <label for="turnstile-widget">Human Verification</label>
+        <label for="hcaptcha-widget">Human Verification</label>
         <div class="captcha-box">
           <div
-            id="turnstile-widget"
-            class="cf-turnstile"
-            data-sitekey="1x00000000000000000000AA"
-            data-callback="onTurnstileSuccess"
-            data-expired-callback="onTurnstileExpired"
-            data-error-callback="onTurnstileError"
+            id="hcaptcha-widget"
+            class="h-captcha"
+            data-sitekey="10000000-ffff-ffff-ffff-000000000001"
+            data-callback="onHCaptchaSuccess"
+            data-expired-callback="onHCaptchaExpired"
+            data-error-callback="onHCaptchaError"
           ></div>
         </div>
         <p class="captcha-error" id="captcha-error" aria-live="polite"></p>
@@ -178,7 +184,7 @@
     </form>
   </div>
 
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
   <script>
     const form = document.getElementById('register-form');
     const password = document.getElementById('password');
@@ -193,13 +199,13 @@
       }
     }
 
-    function getTurnstileToken() {
-      const tokenInput = form.querySelector('input[name="cf-turnstile-response"]');
+    function getHCaptchaToken() {
+      const tokenInput = form.querySelector('textarea[name="h-captcha-response"]');
       return tokenInput ? tokenInput.value.trim() : '';
     }
 
     function validateHumanVerification() {
-      const token = getTurnstileToken();
+      const token = getHCaptchaToken();
       if (token) {
         captchaError.textContent = '';
         return true;
@@ -209,15 +215,15 @@
       }
     }
 
-    window.onTurnstileSuccess = function () {
+    window.onHCaptchaSuccess = function () {
       validateHumanVerification();
     };
 
-    window.onTurnstileExpired = function () {
+    window.onHCaptchaExpired = function () {
       validateHumanVerification();
     };
 
-    window.onTurnstileError = function () {
+    window.onHCaptchaError = function () {
       validateHumanVerification();
     };
 
