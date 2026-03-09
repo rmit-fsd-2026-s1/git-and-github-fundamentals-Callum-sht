@@ -21,12 +21,12 @@
     }
 
     .register-card {
-      width: min(92vw, 400px);
+      width: min(92vw, 520px);
       padding: 28px;
       border-radius: 10px;
       background: #ffffff;
       border: 1px solid #f3dfcf;
-      box-shadow: 0 4px 14px rgba(36, 20, 5, 0.06);
+      box-shadow: 0 2px 8px rgba(36, 20, 5, 0.05);
     }
 
     h1 {
@@ -78,33 +78,31 @@
       line-height: 1.35;
     }
 
-    .human-check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 44px;
-      padding: 0 12px;
-      border: 1px solid #d9d9d9;
-      border-radius: 8px;
-      background: #fff;
+    .captcha-field {
+      margin-top: 10px;
     }
 
-    .human-check input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      margin: 0;
+    .captcha-box {
+      min-height: 0;
       padding: 0;
-      accent-color: #f29a52;
-      border-radius: 2px;
-      box-shadow: none;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      display: block;
+      text-align: left;
     }
 
-    .human-check label {
+    #turnstile-widget,
+    .cf-turnstile {
+      display: inline-block;
       margin: 0;
-      font-size: 0.95rem;
-      font-weight: 500;
-      line-height: 1.2;
-      cursor: pointer;
+    }
+
+    .captcha-error {
+      margin: 4px 0 0;
+      min-height: 18px;
+      font-size: 0.84rem;
+      color: #c0392b;
     }
 
     button {
@@ -161,21 +159,31 @@
         />
       </div>
 
-      <div class="field">
-        <div class="human-check">
-          <input type="checkbox" id="human-verification" name="human-verification" required />
-          <label for="human-verification">I'm not a robot</label>
+      <div class="field captcha-field">
+        <label for="turnstile-widget">Human Verification</label>
+        <div class="captcha-box">
+          <div
+            id="turnstile-widget"
+            class="cf-turnstile"
+            data-sitekey="1x00000000000000000000AA"
+            data-callback="onTurnstileSuccess"
+            data-expired-callback="onTurnstileExpired"
+            data-error-callback="onTurnstileError"
+          ></div>
         </div>
+        <p class="captcha-error" id="captcha-error" aria-live="polite"></p>
       </div>
 
       <button type="submit">Register</button>
     </form>
   </div>
 
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script>
     const form = document.getElementById('register-form');
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirm-password');
+    const captchaError = document.getElementById('captcha-error');
 
     function validatePasswordMatch() {
       if (confirmPassword.value && password.value !== confirmPassword.value) {
@@ -185,11 +193,43 @@
       }
     }
 
+    function getTurnstileToken() {
+      const tokenInput = form.querySelector('input[name="cf-turnstile-response"]');
+      return tokenInput ? tokenInput.value.trim() : '';
+    }
+
+    function validateHumanVerification() {
+      const token = getTurnstileToken();
+      if (token) {
+        captchaError.textContent = '';
+        return true;
+      } else {
+        captchaError.textContent = 'Please complete human verification.';
+        return false;
+      }
+    }
+
+    window.onTurnstileSuccess = function () {
+      validateHumanVerification();
+    };
+
+    window.onTurnstileExpired = function () {
+      validateHumanVerification();
+    };
+
+    window.onTurnstileError = function () {
+      validateHumanVerification();
+    };
+
     password.addEventListener('input', validatePasswordMatch);
     confirmPassword.addEventListener('input', validatePasswordMatch);
 
-    form.addEventListener('submit', function () {
+    form.addEventListener('submit', function (event) {
       validatePasswordMatch();
+      const isHumanVerified = validateHumanVerification();
+      if (!isHumanVerified) {
+        event.preventDefault();
+      }
     });
   </script>
 </body>
