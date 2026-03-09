@@ -21,7 +21,7 @@
     }
 
     .register-card {
-      width: min(92vw, 360px);
+      width: min(92vw, 400px);
       padding: 28px;
       border-radius: 10px;
       background: #ffffff;
@@ -71,6 +71,42 @@
       box-shadow: 0 0 0 2px rgba(232, 164, 107, 0.18);
     }
 
+    .password-help {
+      margin: 0;
+      font-size: 0.84rem;
+      color: #666;
+      line-height: 1.35;
+    }
+
+    .human-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .human-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      padding: 0;
+      accent-color: #f29a52;
+      border-radius: 2px;
+      box-shadow: none;
+    }
+
+    .human-check label {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 500;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
     button {
       border: 0;
       background: #f29a52;
@@ -82,18 +118,12 @@
     button:hover {
       background: #e88d44;
     }
-
-    #password-help {
-      font-size: 0.84rem;
-      color: #666;
-      line-height: 1.35;
-    }
   </style>
 </head>
 <body>
   <div class="register-card">
     <h1>Register</h1>
-    <form action="#" method="post">
+    <form action="#" method="post" id="register-form">
       <div class="field">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required />
@@ -117,11 +147,50 @@
           title="8-16 characters, including at least 1 uppercase letter, 1 lowercase letter, and 1 special character."
           aria-describedby="password-help"
         />
-        <small id="password-help">Use 8-16 characters with uppercase, lowercase, and a special character.</small>
+        <p class="password-help" id="password-help">Use 8-16 characters with uppercase, lowercase, and a special character.</p>
+      </div>
+
+      <div class="field">
+        <label for="confirm-password">Confirm Password</label>
+        <input
+          type="password"
+          id="confirm-password"
+          name="confirm-password"
+          required
+          title="Please re-enter the same password."
+        />
+      </div>
+
+      <div class="field">
+        <div class="human-check">
+          <input type="checkbox" id="human-verification" name="human-verification" required />
+          <label for="human-verification">I'm not a robot</label>
+        </div>
       </div>
 
       <button type="submit">Register</button>
     </form>
   </div>
+
+  <script>
+    const form = document.getElementById('register-form');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm-password');
+
+    function validatePasswordMatch() {
+      if (confirmPassword.value && password.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity('Passwords do not match.');
+      } else {
+        confirmPassword.setCustomValidity('');
+      }
+    }
+
+    password.addEventListener('input', validatePasswordMatch);
+    confirmPassword.addEventListener('input', validatePasswordMatch);
+
+    form.addEventListener('submit', function () {
+      validatePasswordMatch();
+    });
+  </script>
 </body>
 </html>
